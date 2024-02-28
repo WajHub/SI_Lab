@@ -4,12 +4,9 @@ import matplotlib.pyplot as plt
 from data import get_data, inspect_data, split_data
 
 
-def predict(X, theta):
-    return np.dot(X, theta)  # Iloczy wektorowy
-
 def getThetaClosedSolution(X, Y):
     Y = np.mat(Y)
-    return np.linalg.pinv(np.dot(X.T, X)) * np.dot(X.T, Y) # Wynik wzoru 1.13
+    return np.linalg.pinv(np.dot(X.T, X)) * np.dot(X.T, Y)  # Wynik wzoru 1.13
 
 
 data = get_data()
@@ -28,33 +25,23 @@ train_data, test_data = split_data(data)
 y_train = train_data['MPG'].to_numpy().reshape(-1, 1)  # Zamienamy na macierz o jednej kolumnie
 x_train = train_data['Weight'].to_numpy().reshape(-1, 1)
 
-
 # TODO: calculate closed-form solution
-theta_0 = 0
-theta_1 = 0
-
-ones = np.ones((x_train.shape[0], 1))  # Tworzymy macierz jedynek (jedna kolumna) - wyrazy wolne
+ones = np.ones(x_train.shape)  # Tworzymy macierz jedynek (jedna kolumna) - wyrazy wolne
 x_train_ = np.hstack((ones, x_train))  # Laczymy - otrzymujemy macierz obserwacji
 
-theta = getThetaClosedSolution(x_train_,y_train)
-theta_0 = theta [0,0] #b
-theta_1 = theta[1,0] #a
+theta = getThetaClosedSolution(x_train_, y_train)
+theta_0 = theta[0, 0]  # b
+theta_1 = theta[1, 0]  # a
 
-y_test = test_data['MPG'].to_numpy()
-x_test = test_data['Weight'].to_numpy()
+y_test = test_data['MPG'].to_numpy().reshape(-1, 1)
+x_test = test_data['Weight'].to_numpy().reshape(-1, 1)
 
 theta_best = [theta_0, theta_1]
 
 # TODO: calculate error
-m = sum(len(wiersz) for wiersz in x_train)
-mse = 0
-for i in range(len(x_train)):
-    for j in range(len(x_train[i])):
-        mse=mse + ((theta_1*x_train[i,j]+theta_0)-y_train[i,j])**2
-mse = mse/m
+mse = np.mean(((theta_best[1] * x_test + theta_best[0]) - y_test) ** 2)
 print("Calculate error MSE:")
 print(mse)
-
 
 # plot the regression line
 x = np.linspace(min(x_test), max(x_test), 100)
@@ -66,14 +53,49 @@ plt.ylabel('MPG')
 plt.show()
 
 # TODO: standardization
+mean_x = np.mean(x_train)
+deviation_x = np.std(x_train)
+x_train = (x_train - mean_x) / deviation_x
+
+mean_y = np.mean(y_train)
+deviation_y = np.std(y_train)
+y_train = (y_train - mean_y) / deviation_y
+
+x_test_ = (x_test - mean_x) / deviation_x
+y_test_ = (y_test - mean_y) / deviation_y
+
+x_train_ = np.hstack((np.ones(x_train.shape), x_train)) # nowa macierz obserwacji (po standaryzacji)
 
 # TODO: calculate theta using Batch Gradient Descent
+theta_best = np.random.rand(2, 1)
+learning_rate = 0.01
+mse = 0
+m = x_train.shape[0]
+for i in range(0, 20000):
+    # print(mse)
+    mse = 2 / m * x_train_.T.dot(x_train_.dot(theta_best) - y_train)
+    theta_best = theta_best - learning_rate * mse
 
 # TODO: calculate error
+mean_x_test = np.mean(x_test)
+deviation_x_test = np.std(x_test)
+x_test_ = (x_test - mean_x_test)/deviation_x_test
 
+y_test_predicted = theta_best[0][0] + theta_best[1][0]*x_test_
+
+mean_y_test = np.mean(y_test)
+deviation_y_test = np.std(y_test)
+
+y_test_predicted = y_test_predicted*deviation_y_test+mean_y_test
+
+mse = np.mean((y_test_predicted - y_test) ** 2)
+print("Calculate error MSE (Gradient descent):")
+print(mse)
 # plot the regression line
 x = np.linspace(min(x_test), max(x_test), 100)
-y = float(theta_best[0]) + float(theta_best[1]) * x
+x_stand = (x-mean_x)/deviation_x
+y_stand = float(theta_best[0][0]) + float(theta_best[1][0]) * x_stand
+y = y_stand*deviation_y_test+mean_y_test
 plt.plot(x, y)
 plt.scatter(x_test, y_test)
 plt.xlabel('Weight')
