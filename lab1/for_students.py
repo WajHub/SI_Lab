@@ -71,22 +71,15 @@ theta_best = np.random.rand(2, 1)
 learning_rate = 0.01
 mse = 0
 m = x_train.shape[0]
-for i in range(0, 20000):
+for i in range(0, 10000):
     # print(mse)
-    mse = 2 / m * x_train_.T.dot(x_train_.dot(theta_best) - y_train)
-    theta_best = theta_best - learning_rate * mse
+    gradient = 2 / m * x_train_.T.dot(x_train_.dot(theta_best) - y_train)
+    theta_best = theta_best - learning_rate * gradient
 
 # TODO: calculate error
-mean_x_test = np.mean(x_test)
-deviation_x_test = np.std(x_test)
-x_test_ = (x_test - mean_x_test)/deviation_x_test
-
 y_test_predicted = theta_best[0][0] + theta_best[1][0]*x_test_
 
-mean_y_test = np.mean(y_test)
-deviation_y_test = np.std(y_test)
-
-y_test_predicted = y_test_predicted*deviation_y_test+mean_y_test
+y_test_predicted = y_test_predicted*deviation_y+mean_y
 
 mse = np.mean((y_test_predicted - y_test) ** 2)
 print("Calculate error MSE (Gradient descent):")
@@ -95,7 +88,7 @@ print(mse)
 x = np.linspace(min(x_test), max(x_test), 100)
 x_stand = (x-mean_x)/deviation_x
 y_stand = float(theta_best[0][0]) + float(theta_best[1][0]) * x_stand
-y = y_stand*deviation_y_test+mean_y_test
+y = y_stand*deviation_y+mean_y
 plt.plot(x, y)
 plt.scatter(x_test, y_test)
 plt.xlabel('Weight')
