@@ -67,7 +67,7 @@ for _ in range(generations):
         cumulative_fitness_population.append(
             (relative_fitness_population[i][0] + cumulative_fitness_population[i - 1][0],
              relative_fitness_population[i][1]))  # Cumulative fitness
-    cumulative_fitness_population = [(cf, p) for (cf, p) in cumulative_fitness_population if cf < 1.0]
+    # cumulative_fitness_population = [(cf, p) for (cf, p) in cumulative_fitness_population if cf < 1.0]
 
     # Crossover
     next_gen = []
@@ -80,9 +80,12 @@ for _ in range(generations):
         next_gen.append(el2_1 + el1_2)
 
     # Mutation
-    # for element in next_gen:
-    #     rand_int = random.randint(0, len(element)-1)
-    #     element[rand_int] = not element[rand_int]
+    for element in next_gen:
+        rand_int = random.randint(0, len(element)-1)
+        element[rand_int] = not element[rand_int]
+
+    # Update solution
+    population = next_gen  # Full replacement
 
     best_individual, best_individual_fitness = population_best(items, knapsack_max_capacity, population)
     if best_individual_fitness > best_fitness:
