@@ -35,10 +35,48 @@ def get_element(cf_population):
             return cf_p[1]
 
 
+def roulette_wheel_selection(items, knapsack_max_capacity, populatopn, population_size, elite_size):
+    relative_fitness_population = []
+    total_fitness = sum(fitness(items, knapsack_max_capacity, p) for p in population)
+    for p in population:
+        relative_fitness_population.append(
+            (fitness(items, knapsack_max_capacity, p) / total_fitness, p))  # Relative fitness
+    relative_fitness_population.sort()
+    relative_fitness_population.reverse()
+
+    cumulative_fitness_population = [relative_fitness_population[0]]
+    for i in range(1, len(relative_fitness_population)):
+        cumulative_fitness_population.append(
+            (relative_fitness_population[i][0] + cumulative_fitness_population[i - 1][0],
+             relative_fitness_population[i][1]))  # Cumulative fitness
+    return cumulative_fitness_population
+
+
+def crossover(p_size, cf_population):
+    gen = []
+    for _ in range(int(p_size/2)):
+        element1 = get_element(cf_population)
+        element2 = get_element(cf_population)
+
+        el1_1, el1_2 = element1[:int(len(element1) / 2)], element1[int(len(element1) / 2):]
+        el2_1, el2_2 = element2[:int(len(element2) / 2)], element2[int(len(element2) / 2):]
+
+        gen.append(el1_1 + el2_2)
+        gen.append(el2_1 + el1_2)
+    return gen
+
+
+def mutation(gen):
+    for element in gen:
+        rand_int = random.randint(0, len(element)-1)
+        element[rand_int] = not element[rand_int]
+
+
 items, knapsack_max_capacity = get_big()
 print(items)
 
 population_size = 100
+elite_size = 5
 generations = 200
 n_selection = 20
 n_elite = 1
@@ -54,38 +92,18 @@ for _ in range(generations):
     # TODO: implement genetic algorithm
 
     # Roulette wheel selection
-    relative_fitness_population = []
-    total_fitness = sum(fitness(items, knapsack_max_capacity, p) for p in population)
-    for p in population:
-        relative_fitness_population.append(
-            (fitness(items, knapsack_max_capacity, p) / total_fitness, p))  # Relative fitness
-    relative_fitness_population.sort()
-    relative_fitness_population.reverse()
-
-    cumulative_fitness_population = [relative_fitness_population[0]]
-    for i in range(1, len(relative_fitness_population)):
-        cumulative_fitness_population.append(
-            (relative_fitness_population[i][0] + cumulative_fitness_population[i - 1][0],
-             relative_fitness_population[i][1]))  # Cumulative fitness
-    # cumulative_fitness_population = [(cf, p) for (cf, p) in cumulative_fitness_population if cf < 1.0]
+    cumulative_fitness_population = roulette_wheel_selection(items, knapsack_max_capacity, population, population_size, elite_size)
 
     # Crossover
-    next_gen = []
-    for _ in range(int(population_size/2)):
-        element1 = get_element(cumulative_fitness_population)
-        element2 = get_element(cumulative_fitness_population)
-        el1_1, el1_2 = element1[:int(len(element1) / 2)], element1[int(len(element1) / 2):]
-        el2_1, el2_2 = element2[:int(len(element2) / 2)], element2[int(len(element2) / 2):]
-        next_gen.append(el1_1 + el2_2)
-        next_gen.append(el2_1 + el1_2)
+    next_gen = crossover(population_size, cumulative_fitness_population)
 
     # Mutation
-    for element in next_gen:
-        rand_int = random.randint(0, len(element)-1)
-        element[rand_int] = not element[rand_int]
+    mutation(next_gen)
 
-    # Update solution
-    population = next_gen  # Full replacement
+    population = []
+
+    population.extend([cumulative_fitness_population[i][1] for i in range(elite_size)])
+    population.extend(next_gen[:population_size-elite_size])
 
     best_individual, best_individual_fitness = population_best(items, knapsack_max_capacity, population)
     if best_individual_fitness > best_fitness:
