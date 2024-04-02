@@ -7,7 +7,7 @@ from exceptions import AgentException
 class AlphaBetaAgent:
     def __init__(self, my_token='o'):
         self.my_token = my_token
-        self.depth = 4
+        self.depth = 6
 
     def decide(self, connect4):
         if connect4.who_moves != self.my_token:
@@ -48,7 +48,7 @@ class AlphaBetaAgent:
                 copy_connect4 = deepcopy(connect4)
                 copy_connect4.drop_token(n_column)
                 score, _ = self.alphabeta(copy_connect4, 1, d - 1, alpha, beta)
-                if score > best_score:
+                if score < best_score:
                     best_score = score
                     move = n_column
                 beta = min(beta, best_score)

@@ -46,7 +46,7 @@ class MinMaxAgent:
                 copy_connect4 = deepcopy(connect4)
                 copy_connect4.drop_token(n_column)
                 score, _ = self.minmax(copy_connect4, 1, d - 1)
-                if score > best_score:
+                if score < best_score:
                     best_score = score
                     move = n_column
         return [best_score, move]
