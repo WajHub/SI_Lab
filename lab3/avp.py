@@ -2,11 +2,11 @@ from alphabetaagent import AlphaBetaAgent
 from exceptions import GameplayException
 from connect4 import Connect4
 from randomagent import RandomAgent
-from minmaxagent import MinMaxAgent
+from minmaxheuristicagent import MinMaxHeuristicAgent
 
 connect4 = Connect4(width=7, height=6)
 # agent = MinMaxAgent('x')
-agent = AlphaBetaAgent('x')
+agent = MinMaxHeuristicAgent('x')
 while not connect4.game_over:
     connect4.draw()
     try:
