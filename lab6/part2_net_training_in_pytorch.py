@@ -38,23 +38,26 @@ def training(model, x, y):
 
     # training hiperparameters
     n_steps = 50000
-    learning_rate = 0.1        # try different values
+    learning_rate = 0.5        # try different values
     minibatch_size = 32
 
     loss_fn = F.binary_cross_entropy
 
-    history = []; i_step=0
+    history = []
+    i_step = 0
 
     # pętla uczenia gradientowego
     for _ in range(n_steps):
 
         # TODO losowa paczka (mini-batch) danych o rozmiarze minibatch_size
         #  (użyj torch.randint do wylosowania indeksów przykładów
-        x_batch = None
-        y_batch = None
+        idx = torch.randint(0, len(x), (minibatch_size, ))
+        x_batch = x[idx]
+        y_batch = y[idx]
 
         # TODO forward pass modelu + policzenie wartości funkcji kosztu (użyj loss_fn zdefiniowanego wyżej)
-        loss = None
+        y_pred = model.forward(x_batch)
+        loss = loss_fn(y_pred, y_batch)
 
         # backward pass
         for p in model.parameters():
@@ -63,6 +66,14 @@ def training(model, x, y):
                          # z parametrów, który wpływa na wartość loss
 
         # TODO update params
+        with torch.no_grad():
+            for p in model.parameters():
+                new_val = p - learning_rate * p.grad
+                p.copy_(new_val)
+
+        # Update lerning rate (Step-based)
+
+
 
         # track stats
         history.append(loss.log10().item())
@@ -153,7 +164,7 @@ def classify_spirals(student_id, do_data_inspection=True, do_model_inpection=Tru
 
 if __name__ == '__main__':
 
-    student_id = None         # Twój numer indeksu, np. 102247
+    student_id = 193511         # Twój numer indeksu, np. 102247
     torch.manual_seed(student_id)
 
     classify_spirals(student_id,
