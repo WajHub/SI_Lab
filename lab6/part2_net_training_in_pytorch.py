@@ -34,11 +34,35 @@ def evaluate_model(model, x, y):
     return acc
 
 
+def step_learning_rate_schedule (initial_lr, step_size, gamma, current_epoch):
+    """
+    Step-based learning rate schedule.
+
+    Parameters:
+    initial_lr (float): The initial learning rate (the learning rate at epoch 0).
+    step_size (int): The number of epochs between learning rate reductions.
+    gamma (float): The factor by which the learning rate should be reduced at each step.
+    current_epoch (int): The current epoch number.
+
+    Returns:
+    float: The learning rate for the current epoch.
+    """
+    lr = initial_lr * (gamma ** (current_epoch // step_size))
+    return lr
+
+
 def training(model, x, y):
 
     # training hiperparameters
     n_steps = 50000
-    learning_rate = 0.5        # try different values
+    learning_rate = 0.8        # try different values
+
+    initial_learning_rate = 0.4
+    step_size = 1000
+    gamma = 0.99
+
+    # 0.4 1000 0.992   train: 94.25%    test: 94.5%
+
     minibatch_size = 32
 
     loss_fn = F.binary_cross_entropy
@@ -72,6 +96,12 @@ def training(model, x, y):
                 p.copy_(new_val)
 
         # Update lerning rate (Step-based)
+        if i_step % step_size == 0 and i_step>0:
+            learning_rate = step_learning_rate_schedule(
+                initial_learning_rate,
+                step_size,
+                gamma,
+                i_step)
 
 
 
