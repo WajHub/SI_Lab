@@ -55,11 +55,11 @@ def training(model, x, y):
 
     # training hiperparameters
     n_steps = 50000
-    learning_rate = 0.8        # try different values
+    learning_rate = 0.35        # try different values
 
-    initial_learning_rate = 0.4
-    step_size = 1000
-    gamma = 0.99
+    initial_learning_rate = 0.35
+    step_size = 2000
+    gamma = 0.992
 
     # 0.4 1000 0.992   train: 94.25%    test: 94.5%
 
